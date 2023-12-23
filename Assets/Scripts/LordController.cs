@@ -10,11 +10,15 @@ public class LordController : MonoBehaviour
     private float edgeL;
     private float edgeR;
 
+    private ColorComponent colorComp;
+
     private void Start()
     {
         edgeL = BoundL.position.x + BoundL.localScale.x / 2 + transform.localScale.x / 2;
         edgeR = BoundR.position.x - BoundR.localScale.x / 2 - transform.localScale.x / 2;
         //Debug.Log(edgeL + " " + edgeR);
+
+        colorComp = GetComponent<ColorComponent>();
     }
 
     // Update is called once per frame
@@ -32,5 +36,11 @@ public class LordController : MonoBehaviour
 
         // 更新物体位置
         transform.position = new Vector3(xPos, transform.position.y, transform.position.z);
+
+        // 更新物体颜色
+        colorComp.R = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
+        colorComp.G = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
+        colorComp.B = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+
     }
 }
