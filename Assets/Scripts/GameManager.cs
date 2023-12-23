@@ -20,20 +20,44 @@ public static class GameManager
         HARD
     }
 
-    public static int CurrentRound;
+    public enum GameState
+    {
+        WELCOME,
+        WON,
+        LOST
+    }
 
-    // 当前分值，限制在0~999999之间
+    // 当前轮次，限制在1~9999之间，修改时更新最大轮次
+    private static int currentRound;
+    public static int CurrentRound
+    {
+        get { return currentRound; }
+        set {
+            currentRound = value;
+            Mathf.Clamp(currentRound, 1, 9999);
+            if (currentRound > maxRound) MaxRound = currentRound;
+        }
+    }
+
+    // 当前分值，限制在0~999999之间，修改时更新最大分值
     private static int currentScore;
     public static int CurrentScore
     {
         get { return currentScore; }
-        set { currentScore = value; Mathf.Clamp(currentScore, 0, 999999); }
+        set { currentScore = value;
+            Mathf.Clamp(currentScore, 0, 999999);
+            if(currentScore > maxScore) MaxScore = currentScore;
+        }
     }
 
     // 游戏是否开始
     public static bool GameStarted;
-    // 游戏目前的状态，true对应的默认状态为吸收者
-    public static bool isGameStateNormal;
+
+    // 游戏目前的状态，只对游戏未开始的情况有效
+    public static GameState currentState;
+
+    // 球目前的状态，true对应的默认状态为吸收者
+    public static bool isGameModeNormal;
 
     private static int maxRound;
     public static int MaxRound
@@ -49,11 +73,11 @@ public static class GameManager
         get { return maxScore; }
     }
 
-    private static Hardness currentHardness;
-    public static Hardness CurrentHardness
+    private static Hardness gameHardness;
+    public static Hardness GameHardness
     {
-        set { currentHardness = value; GameSave(); }
-        get { return currentHardness; }
+        set { gameHardness = value; GameSave(); }
+        get { return gameHardness; }
     }
 
     static GameManager()
@@ -71,34 +95,30 @@ public static class GameManager
         FS.Close();
         maxRound = saveData.MaxRound;
         maxScore = saveData.MaxScore;
-        currentHardness = saveData.SavedHardness;
+        gameHardness = saveData.SavedHardness;
         Debug.Log("<GameManager>: 读取现有存档");
 
-        GameRestart();
-    }
-
-    public static void GameRestart()
-    {
         CurrentRound = 1;
         CurrentScore = 0;
         GameStarted = false;
-        isGameStateNormal = true;
+        isGameModeNormal = true;
+        currentState = GameState.WELCOME;
     }
 
     public static void SaveDataReset()
     {
         MaxRound = 0;
         MaxScore = 0;
-        currentHardness = Hardness.EASY;
+        gameHardness = Hardness.EASY;
     }
 
     private static void GameSave()
     {
         if (saveData == null)
         {
-            saveData = new SaveData(MaxRound, MaxScore, currentHardness);
+            saveData = new SaveData(MaxRound, MaxScore, gameHardness);
         }
-        else saveData.GameSave(MaxRound, MaxScore, currentHardness);
+        else saveData.GameSave(MaxRound, MaxScore, gameHardness);
 
         BinaryFormatter BF = new BinaryFormatter();
         FileStream FS = File.Create(Application.persistentDataPath + "/GameSave.sav");

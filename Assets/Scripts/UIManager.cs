@@ -9,13 +9,18 @@ public class UIManager : MonoBehaviour
     public Text currentScore;
     public Text bestRound;
     public Text currentRound;
+
     public Button easyBtn;
     public Button hardBtn;
+
+    public GameObject startText;
+    public GameObject continueText;
+    public GameObject retryText;
 
     private void Awake()
     {
         // 更新难度按键状态
-        if(GameManager.CurrentHardness == GameManager.Hardness.EASY)
+        if(GameManager.GameHardness == GameManager.Hardness.EASY)
         {
             easyBtn.interactable = false;
             hardBtn.interactable = true;
@@ -29,14 +34,14 @@ public class UIManager : MonoBehaviour
         // 注册按键行为
         easyBtn.onClick.AddListener(() =>
         {
-            GameManager.CurrentHardness = GameManager.Hardness.EASY;
+            GameManager.GameHardness = GameManager.Hardness.EASY;
             easyBtn.interactable = false;
             hardBtn.interactable = true;
         });
 
         hardBtn.onClick.AddListener(() =>
         {
-            GameManager.CurrentHardness = GameManager.Hardness.HARD;
+            GameManager.GameHardness = GameManager.Hardness.HARD;
             hardBtn.interactable = false;
             easyBtn.interactable = true;
         });
@@ -47,15 +52,15 @@ public class UIManager : MonoBehaviour
         // 鼠标右键切换难度
         if (Input.GetMouseButtonDown(1))
         {
-            if(GameManager.CurrentHardness == GameManager.Hardness.HARD)
+            if(GameManager.GameHardness == GameManager.Hardness.HARD)
             {
-                GameManager.CurrentHardness = GameManager.Hardness.EASY;
+                GameManager.GameHardness = GameManager.Hardness.EASY;
                 easyBtn.interactable = false;
                 hardBtn.interactable = true;
             }
             else
             {
-                GameManager.CurrentHardness = GameManager.Hardness.HARD;
+                GameManager.GameHardness = GameManager.Hardness.HARD;
                 hardBtn.interactable = false;
                 easyBtn.interactable = true;
             }
@@ -66,5 +71,34 @@ public class UIManager : MonoBehaviour
         bestRound.text = GameManager.MaxRound.ToString();
         currentScore.text = GameManager.CurrentScore.ToString();
         currentRound.text = GameManager.CurrentRound.ToString();
+
+        // 在游戏未开始时闪烁文字提示
+        if (!GameManager.GameStarted)
+        {
+            if(GameManager.currentState == GameManager.GameState.WELCOME)
+            {
+                startText.SetActive(true);
+                continueText.SetActive(false);
+                retryText.SetActive(false);
+            }
+            if (GameManager.currentState == GameManager.GameState.WON)
+            {
+                startText.SetActive(false);
+                continueText.SetActive(true);
+                retryText.SetActive(false);
+            }
+            if (GameManager.currentState == GameManager.GameState.LOST)
+            {
+                startText.SetActive(false);
+                continueText.SetActive(false);
+                retryText.SetActive(true);
+            }
+        }
+        else
+        {
+            startText.SetActive(false);
+            continueText.SetActive(false);
+            retryText.SetActive(false);
+        }
     }
 }

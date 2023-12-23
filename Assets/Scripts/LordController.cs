@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class LordController : MonoBehaviour
 {
+    public GameObject ball;
+    private float ballBiasY;
+
     public Transform BoundL;
     public Transform BoundR;
 
@@ -14,6 +17,8 @@ public class LordController : MonoBehaviour
 
     private void Start()
     {
+        ballBiasY = ball.transform.position.y - transform.position.y;
+
         edgeL = BoundL.position.x + BoundL.localScale.x / 2 + transform.localScale.x / 2;
         edgeR = BoundR.position.x - BoundR.localScale.x / 2 - transform.localScale.x / 2;
         //Debug.Log(edgeL + " " + edgeR);
@@ -42,5 +47,10 @@ public class LordController : MonoBehaviour
         colorComp.G = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
         colorComp.B = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
 
+        if (!GameManager.GameStarted)
+        {
+            // 游戏未开始状态下，球跟随弹板移动
+            ball.transform.position = transform.position + Vector3.up * ballBiasY;
+        }
     }
 }

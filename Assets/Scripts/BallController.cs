@@ -15,10 +15,10 @@ public class BallController : MonoBehaviour
 
     // 难度对应的速度
     public float easySpeed = 0.05f;
-    public float hardSpeed = 0.10f;
+    public float hardSpeed = 0.08f;
 
     // 额定最大速度
-    private const float maxSpeed = 0.35f;
+    private const float maxSpeed = 0.30f;
     // 一次bounce增加的速度
     private const float unitSpeed = 0.01f;
 
@@ -43,14 +43,14 @@ public class BallController : MonoBehaviour
     {
         currentSpeed = 0.0f;
         bounceCount = 0;
-        GameManager.isGameStateNormal = true;
+        GameManager.isGameModeNormal = true;
         ModeChange();
     }
 
     private void ModeChange()
     {
-        Debug.Log("<BallController>: 模式切换 -> " + (GameManager.isGameStateNormal ? "吸收者模式" : "归还者模式"));
-        if(GameManager.isGameStateNormal)
+        Debug.Log("<BallController>: 模式切换 -> " + (GameManager.isGameModeNormal ? "吸收者模式" : "归还者模式"));
+        if(GameManager.isGameModeNormal)
         {
             boundAbsorb.SetActive(true);
             boundRelease.SetActive(false);
@@ -69,7 +69,7 @@ public class BallController : MonoBehaviour
         if (!GameManager.GameStarted) return;
 
         // 根据难度决定速度
-        baseSpeed = GameManager.CurrentHardness == GameManager.Hardness.EASY ? easySpeed : hardSpeed;
+        baseSpeed = GameManager.GameHardness == GameManager.Hardness.EASY ? easySpeed : hardSpeed;
 
         // 将基础速度乘以速度加成
         if (colorComp.GetColorCount() == 0) currentSpeed = baseSpeed + unitSpeed * bounceCount;
@@ -123,19 +123,24 @@ public class BallController : MonoBehaviour
         else
         {
             // 做反射运算，得到反射后的选择向量
-            Vector2 Out_Direction = Vector2.Reflect(Direction, collision.GetContact(0).normal);
+            Vector2 outDirection = Vector2.Reflect(Direction, collision.GetContact(0).normal);
             //Debug.Log(Out_Direction);
 
             // 向旋转向量转为弧度制
-            Angle_Z = Mathf.Atan2(Out_Direction.y, Out_Direction.x);
+            Angle_Z = Mathf.Atan2(outDirection.y, outDirection.x);
             //Debug.Log(Angle_Z);
         }
 
         // 重新转换回角度制
         float NewEularZ = Angle_Z * Mathf.Rad2Deg;
 
-        // 对方向进行略微偏转
+        // 对方向进行随机略微偏转
         NewEularZ += Random.Range(-maxAngleBias, maxAngleBias);
+
+        // 限制偏转结果在法线的90度范围内，避免打入物体内部
+        Vector2 newDirection = new Vector2(Mathf.Cos(Angle_Z), Mathf.Sin(Angle_Z));
+        if(Vector2.Angle(collision.GetContact(0).normal, newDirection) >= 90)
+            NewEularZ = Angle_Z * Mathf.Rad2Deg;
 
         // 修改子弹角度，达成反射效果
         transform.rotation = Quaternion.Euler(0, 0, NewEularZ);
@@ -157,12 +162,12 @@ public class BallController : MonoBehaviour
 
                 // 积分增加，为带回的颜色数乘当前轮次
                 GameManager.CurrentScore += colorComp.GetColorCount() * GameManager.CurrentRound
-                    * (GameManager.CurrentHardness == GameManager.Hardness.HARD ? 2 : 1);
+                    * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1);
 
                 // 恢复吸收者模式
-                if (!GameManager.isGameStateNormal)
+                if (!GameManager.isGameModeNormal)
                 {
-                    GameManager.isGameStateNormal = true;
+                    GameManager.isGameModeNormal = true;
                     ModeChange();
                 }
             }
@@ -173,9 +178,9 @@ public class BallController : MonoBehaviour
                 bounceCount++;
 
                 // 进入归还者模式
-                if (GameManager.isGameStateNormal)
+                if (GameManager.isGameModeNormal)
                 {
-                    GameManager.isGameStateNormal = false;
+                    GameManager.isGameModeNormal = false;
                     ModeChange();
                 }
 
@@ -199,14 +204,14 @@ public class BallController : MonoBehaviour
             bounceCount++;
 
             // 根据目前模式进行吸收或释放
-            if (GameManager.isGameStateNormal)
+            if (GameManager.isGameModeNormal)
             {
                 Debug.Log("<BallController>: 接触砖块" + objCollision.name + "并尝试吸收");
                 if (ColorManager.AbsorbColor(colorComp, objCollision.GetComponent<ColorComponent>()))
                 {
                     // 消掉砖块，积分加等于当前轮数乘以难度倍率
                     objCollision.GetComponent<BrickController>().Destory();
-                    GameManager.CurrentScore += GameManager.CurrentRound * (GameManager.CurrentHardness == GameManager.Hardness.HARD ? 2 : 1);
+                    GameManager.CurrentScore += GameManager.CurrentRound * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1);
                 }
             }
             else
@@ -218,6 +223,12 @@ public class BallController : MonoBehaviour
                 ColorManager.ReleaseColor(colorComp, objCollision.GetComponent <ColorComponent>());
             }
             return;
+        }
+
+        if (objCollision.CompareTag("Respawn"))
+        {
+            Debug.Log("<BallController>: 进入死区，游戏失败！");
+            GameManager.GameStarted = false;
         }
     }
 }
