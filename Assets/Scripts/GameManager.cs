@@ -69,8 +69,8 @@ public static class GameManager
         FileStream FS = File.Open(Application.persistentDataPath + "/GameSave.sav", FileMode.Open);
         saveData = BF.Deserialize(FS) as SaveData;
         FS.Close();
-        MaxRound = saveData.MaxRound;
-        MaxScore = saveData.MaxScore;
+        maxRound = saveData.MaxRound;
+        maxScore = saveData.MaxScore;
         currentHardness = saveData.SavedHardness;
         Debug.Log("<GameManager>: 读取现有存档");
 
@@ -79,7 +79,7 @@ public static class GameManager
 
     public static void GameRestart()
     {
-        CurrentRound = 0;
+        CurrentRound = 1;
         CurrentScore = 0;
         GameStarted = false;
         isGameStateNormal = true;

@@ -7,8 +7,8 @@ public class UIManager : MonoBehaviour
 {
     public Text bestScore;
     public Text currentScore;
+    public Text bestRound;
     public Text currentRound;
-    public Button restartBtn;
     public Button easyBtn;
     public Button hardBtn;
 
@@ -27,11 +27,6 @@ public class UIManager : MonoBehaviour
         }
 
         // 注册按键行为
-        restartBtn.onClick.AddListener(() =>
-        {
-            
-        });
-
         easyBtn.onClick.AddListener(() =>
         {
             GameManager.CurrentHardness = GameManager.Hardness.EASY;
@@ -49,8 +44,26 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        // 鼠标右键切换难度
+        if (Input.GetMouseButtonDown(1))
+        {
+            if(GameManager.CurrentHardness == GameManager.Hardness.HARD)
+            {
+                GameManager.CurrentHardness = GameManager.Hardness.EASY;
+                easyBtn.interactable = false;
+                hardBtn.interactable = true;
+            }
+            else
+            {
+                GameManager.CurrentHardness = GameManager.Hardness.HARD;
+                hardBtn.interactable = false;
+                easyBtn.interactable = true;
+            }
+        }
+
         // 更新分数信息
         bestScore.text = GameManager.MaxScore.ToString();
+        bestRound.text = GameManager.MaxRound.ToString();
         currentScore.text = GameManager.CurrentScore.ToString();
         currentRound.text = GameManager.CurrentRound.ToString();
     }
