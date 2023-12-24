@@ -6,6 +6,7 @@ public class LordController : MonoBehaviour
 {
     public GameObject ball;
     private float ballBiasY;
+    private float ballRotationZ;
 
     public Transform BoundL;
     public Transform BoundR;
@@ -18,6 +19,7 @@ public class LordController : MonoBehaviour
     private void Start()
     {
         ballBiasY = ball.transform.position.y - transform.position.y;
+        ballRotationZ = ball.transform.rotation.eulerAngles.z;
 
         edgeL = BoundL.position.x + BoundL.localScale.x / 2 + transform.localScale.x / 2;
         edgeR = BoundR.position.x - BoundR.localScale.x / 2 - transform.localScale.x / 2;
@@ -47,10 +49,11 @@ public class LordController : MonoBehaviour
         colorComp.G = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
         colorComp.B = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
 
-        if (!GameManager.GameStarted)
+        if (!GameManager.isGameStarted)
         {
-            // 游戏未开始状态下，球跟随弹板移动
+            // 游戏未开始状态下，球跟随弹板移动，旋转以及颜色都为默认值
             ball.transform.position = transform.position + Vector3.up * ballBiasY;
+            ball.transform.rotation = Quaternion.Euler(0.0f, 0.0f, ballRotationZ);
         }
     }
 }

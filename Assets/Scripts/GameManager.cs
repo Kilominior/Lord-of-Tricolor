@@ -51,7 +51,11 @@ public static class GameManager
     }
 
     // 游戏是否开始
-    public static bool GameStarted;
+    public static bool isGameStarted;
+
+    // 游戏是否即将结束，仅在最后一个砖块被击毁时为真，
+    // 此时若球将颜色正确带回，则胜利
+    public static bool isGameFinishing;
 
     // 游戏目前的状态，只对游戏未开始的情况有效
     public static GameState currentState;
@@ -100,7 +104,7 @@ public static class GameManager
 
         CurrentRound = 1;
         CurrentScore = 0;
-        GameStarted = false;
+        isGameStarted = false;
         isGameModeNormal = true;
         currentState = GameState.WELCOME;
     }

@@ -51,6 +51,13 @@ public class ColorComponent: MonoBehaviour
         return count;
     }
 
+    // 返回真实颜色
+    public Color32 GetColor32()
+    {
+        return new Color32(R ? ColorManager.BrightColorValue : ColorManager.DarkColorValue,
+            G ? ColorManager.BrightColorValue : ColorManager.DarkColorValue, B ? ColorManager.BrightColorValue : ColorManager.DarkColorValue, 255);
+    }
+
     // 同步颜色状态到Renderer
     private void RendererUpdate()
     {

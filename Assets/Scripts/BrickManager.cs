@@ -12,11 +12,11 @@ public class BrickManager : MonoBehaviour
     private float unitHeight;
 
     // 生成区域的宽高，指方块数量
-    public int areaWidth;
-    public int areaHeight;
+    public int areaWidth = 11;
+    public int areaHeight = 5;
 
     // 控制生成的R/G/B单种颜色的概率，0~1之间
-    public float rate = 0.4f;
+    private float rate = 0.2f;
 
     // 若三种颜色均未生成，是否生成为暗方块
     public bool createInitialDarkBrick = false;
@@ -33,6 +33,29 @@ public class BrickManager : MonoBehaviour
         unitHeight = brickUnit.transform.localScale.y;
 
         bricks = new List<GameObject>(areaWidth * areaHeight);
+        OriginSpawn();
+    }
+
+    /// <summary>
+    /// 更新亮色砖块统计值
+    /// </summary>
+    public void AliveUpdate(bool isAdd)
+    {
+        if (isAdd) aliveCount++;
+        else aliveCount--;
+
+        // 判定是否完成此轮
+        if (aliveCount == 0)
+        {
+            Debug.Log("<BrickManager>: 全部砖块破坏完毕，等待游戏结束...");
+            GameManager.isGameFinishing = true;
+        }
+        else GameManager.isGameFinishing = false;
+    }
+
+    private void OriginSpawn()
+    {
+        GameManager.isGameFinishing = false;
         aliveCount = 0;
 
         for (int h = 0; h < areaHeight; h++)
@@ -59,29 +82,13 @@ public class BrickManager : MonoBehaviour
                 bricks.Add(newUnit);
             }
         }
+        // 若未生成任何方块，重试
+        if (aliveCount == 0) OriginSpawn();
     }
 
-    /// <summary>
-    /// 更新亮色砖块统计值
-    /// </summary>
-    public void AliveUpdate(bool isAdd)
+    public void Respawn()
     {
-        if (isAdd) aliveCount++;
-        else
-        {
-            aliveCount--;
-            // 判定是否完成此轮
-            if(aliveCount == 0)
-            {
-                GameManager.GameStarted = false;
-                GameManager.currentState = GameManager.GameState.WON;
-                Respawn();
-            }
-        }
-    }
-
-    private void Respawn()
-    {
+        GameManager.isGameFinishing = false;
         aliveCount = 0;
 
         for (int h = 0; h < areaHeight; h++)
@@ -105,5 +112,7 @@ public class BrickManager : MonoBehaviour
                 if (!createInitialDarkBrick && !bricks[w + h * areaWidth].GetComponent<BrickController>().isAlive) bricks[w + h * areaWidth].SetActive(false);
             }
         }
+        // 若未生成任何方块，重试
+        if (aliveCount == 0) Respawn();
     }
 }

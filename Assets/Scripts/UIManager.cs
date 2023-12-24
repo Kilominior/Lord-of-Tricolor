@@ -73,7 +73,7 @@ public class UIManager : MonoBehaviour
         currentRound.text = GameManager.CurrentRound.ToString();
 
         // 在游戏未开始时闪烁文字提示
-        if (!GameManager.GameStarted)
+        if (!GameManager.isGameStarted)
         {
             if(GameManager.currentState == GameManager.GameState.WELCOME)
             {

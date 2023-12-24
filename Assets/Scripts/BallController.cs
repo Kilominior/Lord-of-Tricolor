@@ -8,17 +8,23 @@ public class BallController : MonoBehaviour
     private const int LayerAbsorb = 7;
     private const int LayerRelease = 8;
 
+    //private Rigidbody2D rb;
     private ColorComponent colorComp;
+    private TrailRenderer trailRenderer;
+
+    // TODO: 改为委托
+    public BrickManager brickManager;
 
     public GameObject boundAbsorb;
     public GameObject boundRelease;
 
     // 难度对应的速度
-    public float easySpeed = 0.05f;
-    public float hardSpeed = 0.08f;
+    private float easySpeed = 0.04f;
+    private float hardSpeed = 0.07f;
 
     // 额定最大速度
-    private const float maxSpeed = 0.30f;
+    private const float maxEasySpeed = 0.20f;
+    private const float maxHardSpeed = 0.24f;
     // 一次bounce增加的速度
     private const float unitSpeed = 0.01f;
 
@@ -35,14 +41,17 @@ public class BallController : MonoBehaviour
 
     private void Start()
     {
+        //rb = GetComponent<Rigidbody2D>();
         colorComp = GetComponent<ColorComponent>();
         colorComp.ResetColor();
+        trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void Restart()
     {
         currentSpeed = 0.0f;
         bounceCount = 0;
+        colorComp.ResetColor();
         GameManager.isGameModeNormal = true;
         ModeChange();
     }
@@ -66,7 +75,7 @@ public class BallController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!GameManager.GameStarted) return;
+        if (!GameManager.isGameStarted) return;
 
         // 根据难度决定速度
         baseSpeed = GameManager.GameHardness == GameManager.Hardness.EASY ? easySpeed : hardSpeed;
@@ -81,7 +90,7 @@ public class BallController : MonoBehaviour
         }
 
         // 速度最小为基础速度，最大为额定值
-        currentSpeed = Mathf.Clamp(currentSpeed, baseSpeed, maxSpeed);
+        currentSpeed = Mathf.Clamp(currentSpeed, baseSpeed, GameManager.GameHardness == GameManager.Hardness.EASY ? maxEasySpeed : maxHardSpeed);
 
         Debug.Log("<BallController>: 球当前速度为"+ currentSpeed);
 
@@ -91,17 +100,22 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
-        if (!GameManager.GameStarted)
+        if (!GameManager.isGameStarted)
         {
             Restart();
             // 当按下鼠标左键时游戏开始
             if (Input.GetMouseButtonDown(0))
             {
-                GameManager.GameStarted = true;
+                GameManager.isGameStarted = true;
                 Debug.Log("<BallController>: 游戏开始");
             }
         }
-        
+
+        // 根据color组件更新拖尾颜色
+        trailRenderer.startColor = colorComp.GetColor32();
+        if (GameManager.isGameModeNormal) trailRenderer.endColor = Color.white;
+        else trailRenderer.endColor = Color.black;
+
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -115,7 +129,7 @@ public class BallController : MonoBehaviour
         //Debug.Log(Direction);
 
         // 两种情况，一是原路返回，二是镜面反射
-        if(Random.Range(0, 3) == 0)
+        if(Random.Range(0, 4) == 0)
         {
             // 将Z的角度直接改为负值
             Angle_Z += Mathf.PI;
@@ -170,6 +184,14 @@ public class BallController : MonoBehaviour
                     GameManager.isGameModeNormal = true;
                     ModeChange();
                 }
+
+                if (GameManager.isGameFinishing)
+                {
+                    GameManager.isGameStarted = false;
+                    GameManager.CurrentRound++;
+                    GameManager.currentState = GameManager.GameState.WON;
+                    brickManager.Respawn();
+                }
             }
             else
             {
@@ -223,12 +245,6 @@ public class BallController : MonoBehaviour
                 ColorManager.ReleaseColor(colorComp, objCollision.GetComponent <ColorComponent>());
             }
             return;
-        }
-
-        if (objCollision.CompareTag("Respawn"))
-        {
-            Debug.Log("<BallController>: 进入死区，游戏失败！");
-            GameManager.GameStarted = false;
         }
     }
 }

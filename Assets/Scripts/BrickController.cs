@@ -28,6 +28,7 @@ public class BrickController : MonoBehaviour
         this.col = col;
         colorComp.ColorUpdateTo(R, G, B);
         isAlive = (colorComp.R || colorComp.G || colorComp.B);
+        gameObject.layer = isAlive ? NormalLayer : DarkLayer;
         this.brickManager = brickManager;
     }
 
