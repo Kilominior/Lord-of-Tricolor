@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Bound
   - Brick
+  - ErrorDetect
   layers:
   - Default
   - TransparentFX

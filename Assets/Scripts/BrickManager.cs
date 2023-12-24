@@ -16,7 +16,7 @@ public class BrickManager : MonoBehaviour
     public int areaHeight = 5;
 
     // 控制生成的R/G/B单种颜色的概率，0~1之间
-    private float rate = 0.2f;
+    private float rate = 0.1f;
 
     // 若三种颜色均未生成，是否生成为暗方块
     public bool createInitialDarkBrick = false;
@@ -103,7 +103,22 @@ public class BrickManager : MonoBehaviour
                 float g = UnityEngine.Random.Range(0.0f, 1.0f);
                 float b = UnityEngine.Random.Range(0.0f, 1.0f);
 
-                bricks[w + h * areaWidth].GetComponent<BrickController>().Initialize(h, w, r < rate, g < rate, b < rate, this);
+                // 根据轮次变换概率
+                float currentRate;
+                if (GameManager.CurrentRound <= 4)
+                {
+                    currentRate = GameManager.CurrentRound * rate;
+                }
+                else if(GameManager.CurrentRound <= 8)
+                {
+                    currentRate = UnityEngine.Random.Range(0.3f, 0.5f);
+                }
+                else
+                {
+                    currentRate = UnityEngine.Random.Range(0.05f, 1.0f);
+                }
+
+                bricks[w + h * areaWidth].GetComponent<BrickController>().Initialize(h, w, r < currentRate, g < currentRate, b < currentRate, this);
 
                 // 计数亮色方块
                 if (bricks[w + h * areaWidth].GetComponent<BrickController>().isAlive) aliveCount++;

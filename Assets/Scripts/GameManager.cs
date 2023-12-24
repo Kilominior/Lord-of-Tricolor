@@ -22,10 +22,18 @@ public static class GameManager
 
     public enum GameState
     {
-        WELCOME,
-        WON,
-        LOST
+        WELCOME,           // 首次进入游戏
+        WON,               // 完成一轮
+        LOST,              // 游戏失败
+        RELIFE,            // 自动复活
+        ERROR              // 发生越界Bug
     }
+
+    // 得分的基础倍率
+    public const int ScoreBonus = 5;
+
+    // 每次复活消耗的积分，将会乘以当前轮次
+    public const int RelifeCost = 100;
 
     // 当前轮次，限制在1~9999之间，修改时更新最大轮次
     private static int currentRound;

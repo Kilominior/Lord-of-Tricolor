@@ -16,6 +16,8 @@ public class UIManager : MonoBehaviour
     public GameObject startText;
     public GameObject continueText;
     public GameObject retryText;
+    public GameObject relifeText;
+    public GameObject errorText;
 
     private void Awake()
     {
@@ -80,18 +82,40 @@ public class UIManager : MonoBehaviour
                 startText.SetActive(true);
                 continueText.SetActive(false);
                 retryText.SetActive(false);
+                relifeText.SetActive(false);
+                errorText.SetActive(false);
             }
             if (GameManager.currentState == GameManager.GameState.WON)
             {
                 startText.SetActive(false);
                 continueText.SetActive(true);
                 retryText.SetActive(false);
+                relifeText.SetActive(false);
+                errorText.SetActive(false);
             }
             if (GameManager.currentState == GameManager.GameState.LOST)
             {
                 startText.SetActive(false);
                 continueText.SetActive(false);
                 retryText.SetActive(true);
+                relifeText.SetActive(false);
+                errorText.SetActive(false);
+            }
+            if (GameManager.currentState == GameManager.GameState.RELIFE)
+            {
+                startText.SetActive(false);
+                continueText.SetActive(false);
+                retryText.SetActive(false);
+                relifeText.SetActive(true);
+                errorText.SetActive(false);
+            }
+            if (GameManager.currentState == GameManager.GameState.ERROR)
+            {
+                startText.SetActive(false);
+                continueText.SetActive(false);
+                retryText.SetActive(false);
+                relifeText.SetActive(false);
+                errorText.SetActive(true);
             }
         }
         else
@@ -99,6 +123,8 @@ public class UIManager : MonoBehaviour
             startText.SetActive(false);
             continueText.SetActive(false);
             retryText.SetActive(false);
+            relifeText.SetActive(false);
+            errorText.SetActive(false);
         }
     }
 }

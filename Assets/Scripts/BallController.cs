@@ -171,12 +171,12 @@ public class BallController : MonoBehaviour
                 // 重置bounce次数
                 bounceCount = 0;
 
-                // 重置颜色
-                colorComp.ResetColor();
-
                 // 积分增加，为带回的颜色数乘当前轮次
                 GameManager.CurrentScore += colorComp.GetColorCount() * GameManager.CurrentRound
-                    * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1);
+                    * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1) * GameManager.ScoreBonus;
+
+                // 重置颜色
+                colorComp.ResetColor();
 
                 // 恢复吸收者模式
                 if (!GameManager.isGameModeNormal)
@@ -233,7 +233,8 @@ public class BallController : MonoBehaviour
                 {
                     // 消掉砖块，积分加等于当前轮数乘以难度倍率
                     objCollision.GetComponent<BrickController>().Destory();
-                    GameManager.CurrentScore += GameManager.CurrentRound * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1);
+                    GameManager.CurrentScore += GameManager.CurrentRound *
+                        (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1) * GameManager.ScoreBonus;
                 }
             }
             else
