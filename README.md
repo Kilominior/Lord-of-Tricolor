@@ -1,6 +1,8 @@
 # Lord of Tricolor - 原色之主
 A Unity Based "Breakout" Game, in which three primary-colors plays a special role.
 
+Play it on Itch:https://kilominior.itch.io/lord-of-tricolor
+
 ### 游戏介绍
 
 ***《原色之主》是一款融合了“三原色”这一要素的打砖块游戏。***

@@ -12,6 +12,9 @@ public class BallController : MonoBehaviour
     private ColorComponent colorComp;
     private TrailRenderer trailRenderer;
 
+    // 为突出显示球的颜色添加的背板，颜色与当前背景色相反
+    private SpriteRenderer backRenderer;
+
     // TODO: 改为委托
     public BrickManager brickManager;
 
@@ -43,15 +46,16 @@ public class BallController : MonoBehaviour
     {
         //rb = GetComponent<Rigidbody2D>();
         colorComp = GetComponent<ColorComponent>();
-        colorComp.ResetColor();
         trailRenderer = GetComponent<TrailRenderer>();
+        backRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        ResetBallColor();
     }
 
     private void Restart()
     {
         currentSpeed = 0.0f;
         bounceCount = 0;
-        colorComp.ResetColor();
+        ResetBallColor();
         GameManager.isGameModeNormal = true;
         ModeChange();
     }
@@ -71,6 +75,7 @@ public class BallController : MonoBehaviour
             boundRelease.SetActive(true);
             gameObject.layer = LayerRelease;
         }
+        UpdateBackColor();
     }
 
     private void FixedUpdate()
@@ -121,7 +126,7 @@ public class BallController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Debug.Log("<BallController>: 与物体" + collision.gameObject.name + "碰撞");
-        // 将角度制转换为弧度制   
+        // 将角度制转换为弧度制
         float Angle_Z = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
 
         // 拿到旋转向量，以便之后进行反射计算
@@ -176,7 +181,7 @@ public class BallController : MonoBehaviour
                     * (GameManager.GameHardness == GameManager.Hardness.HARD ? 2 : 1) * GameManager.ScoreBonus;
 
                 // 重置颜色
-                colorComp.ResetColor();
+                ResetBallColor();
 
                 // 恢复吸收者模式
                 if (!GameManager.isGameModeNormal)
@@ -246,6 +251,19 @@ public class BallController : MonoBehaviour
                 ColorManager.ReleaseColor(colorComp, objCollision.GetComponent <ColorComponent>());
             }
             return;
+        }
+    }
+
+    private void ResetBallColor(){
+        colorComp.ResetColor();
+    }
+
+    private void UpdateBackColor(){
+        if(GameManager.isGameModeNormal){
+            backRenderer.color = Color.white;
+        }
+        else{
+            backRenderer.color = Color.black;
         }
     }
 }
